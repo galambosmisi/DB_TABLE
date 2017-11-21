@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		6AB42D051FC2F46900DA63F3 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6AB42D041FC2F46900DA63F3 /* main.cpp */; };
+		6AB42D051FC2F46900DA63F3 /* db_table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6AB42D041FC2F46900DA63F3 /* db_table.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -24,7 +24,8 @@
 
 /* Begin PBXFileReference section */
 		6AB42D011FC2F46900DA63F3 /* DB_TABLE */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = DB_TABLE; sourceTree = BUILT_PRODUCTS_DIR; };
-		6AB42D041FC2F46900DA63F3 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		6AB42D041FC2F46900DA63F3 /* db_table.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = db_table.cpp; sourceTree = "<group>"; };
+		6AB42D0B1FC2F48C00DA63F3 /* db_table.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = db_table.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,7 +58,8 @@
 		6AB42D031FC2F46900DA63F3 /* DB_TABLE */ = {
 			isa = PBXGroup;
 			children = (
-				6AB42D041FC2F46900DA63F3 /* main.cpp */,
+				6AB42D041FC2F46900DA63F3 /* db_table.cpp */,
+				6AB42D0B1FC2F48C00DA63F3 /* db_table.hpp */,
 			);
 			path = DB_TABLE;
 			sourceTree = "<group>";
@@ -119,7 +121,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6AB42D051FC2F46900DA63F3 /* main.cpp in Sources */,
+				6AB42D051FC2F46900DA63F3 /* db_table.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
