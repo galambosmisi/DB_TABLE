@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6A6F05111FCC552700C68DEF /* test_controller.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A6F05101FCC552600C68DEF /* test_controller.m */; };
 		6AB42D051FC2F46900DA63F3 /* db_table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6AB42D041FC2F46900DA63F3 /* db_table.cpp */; };
 /* End PBXBuildFile section */
 
@@ -23,12 +24,23 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		6A6F05031FCC2A5F00C68DEF /* tableexception.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = tableexception.hpp; sourceTree = "<group>"; };
+		6A6F05081FCC540C00C68DEF /* proba.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = proba.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		6A6F05101FCC552600C68DEF /* test_controller.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = test_controller.m; sourceTree = "<group>"; };
+		6A6F05121FCC69FA00C68DEF /* test.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = test.hpp; sourceTree = "<group>"; };
 		6AB42D011FC2F46900DA63F3 /* DB_TABLE */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = DB_TABLE; sourceTree = BUILT_PRODUCTS_DIR; };
 		6AB42D041FC2F46900DA63F3 /* db_table.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = db_table.cpp; sourceTree = "<group>"; };
 		6AB42D0B1FC2F48C00DA63F3 /* db_table.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = db_table.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		6A6F05051FCC540C00C68DEF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		6AB42CFE1FC2F46900DA63F3 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -42,6 +54,7 @@
 		6AB42CF81FC2F46900DA63F3 = {
 			isa = PBXGroup;
 			children = (
+				6A6F05101FCC552600C68DEF /* test_controller.m */,
 				6AB42D031FC2F46900DA63F3 /* DB_TABLE */,
 				6AB42D021FC2F46900DA63F3 /* Products */,
 			);
@@ -51,6 +64,7 @@
 			isa = PBXGroup;
 			children = (
 				6AB42D011FC2F46900DA63F3 /* DB_TABLE */,
+				6A6F05081FCC540C00C68DEF /* proba.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -60,6 +74,8 @@
 			children = (
 				6AB42D041FC2F46900DA63F3 /* db_table.cpp */,
 				6AB42D0B1FC2F48C00DA63F3 /* db_table.hpp */,
+				6A6F05031FCC2A5F00C68DEF /* tableexception.hpp */,
+				6A6F05121FCC69FA00C68DEF /* test.hpp */,
 			);
 			path = DB_TABLE;
 			sourceTree = "<group>";
@@ -67,6 +83,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		6A6F05071FCC540C00C68DEF /* proba */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6A6F050D1FCC540C00C68DEF /* Build configuration list for PBXNativeTarget "proba" */;
+			buildPhases = (
+				6A6F05041FCC540C00C68DEF /* Sources */,
+				6A6F05051FCC540C00C68DEF /* Frameworks */,
+				6A6F05061FCC540C00C68DEF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = proba;
+			productName = proba;
+			productReference = 6A6F05081FCC540C00C68DEF /* proba.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		6AB42D001FC2F46900DA63F3 /* DB_TABLE */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6AB42D081FC2F46900DA63F3 /* Build configuration list for PBXNativeTarget "DB_TABLE" */;
@@ -93,6 +126,10 @@
 				LastUpgradeCheck = 0910;
 				ORGANIZATIONNAME = "Galambos Mihály";
 				TargetAttributes = {
+					6A6F05071FCC540C00C68DEF = {
+						CreatedOnToolsVersion = 9.1;
+						ProvisioningStyle = Automatic;
+					};
 					6AB42D001FC2F46900DA63F3 = {
 						CreatedOnToolsVersion = 9.1;
 						ProvisioningStyle = Automatic;
@@ -112,11 +149,30 @@
 			projectRoot = "";
 			targets = (
 				6AB42D001FC2F46900DA63F3 /* DB_TABLE */,
+				6A6F05071FCC540C00C68DEF /* proba */,
 			);
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		6A6F05061FCC540C00C68DEF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
+		6A6F05041FCC540C00C68DEF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6A6F05111FCC552700C68DEF /* test_controller.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		6AB42CFD1FC2F46900DA63F3 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -128,6 +184,30 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		6A6F050E1FCC540C00C68DEF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = proba/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = GM.proba;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		6A6F050F1FCC540C00C68DEF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = proba/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = GM.proba;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		6AB42D061FC2F46900DA63F3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -250,6 +330,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		6A6F050D1FCC540C00C68DEF /* Build configuration list for PBXNativeTarget "proba" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6A6F050E1FCC540C00C68DEF /* Debug */,
+				6A6F050F1FCC540C00C68DEF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		6AB42CFC1FC2F46900DA63F3 /* Build configuration list for PBXProject "DB_TABLE" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
