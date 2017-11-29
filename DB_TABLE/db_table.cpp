@@ -71,7 +71,6 @@ void db_table::set(string col, size_t row, string value) {
 
 string db_table::get( string col, size_t row) const {
     if(invalidIndex(row, col)) throw(invalid_index());
-    
     return table.at(col)[row];
 }
 
@@ -79,29 +78,78 @@ string db_table::get( string col, size_t row) const {
 db_table db_table::join(db_table other, string cond) const {
     if(cond.find("=") == string::npos) throw(invalid_condition());
     
+    ///Azonos oszlopnevek ellenőrzése
+    for(const auto &it : table) {
+        for(const auto &oit : other.table) {
+            if(it.first == oit.first) throw(invalid_condition());
+        }
+    }
+    
+    
+    unsigned numberOfCondition=0;
     vector<string> thisTable;
     vector<string> otherTable;
     
-    size_t idx;                     //Egyenlőségjel indexe
-    string sh;                      //Segéd string
-    stringstream ss;                //Segéd stringstream
+    size_t idx;                                         //Egyenlőségjel indexe
+    string sh;                                          //Segéd string
+    stringstream ss;                                    //Segéd stringstream
     ss<<cond;
     while(getline(ss, sh, ',')) {
         idx = sh.find("=");
         
-        string A = sh.substr(0,idx);
-        string B = sh.substr(idx+1);
+        string A = sh.substr(0,idx);                    //Első feltétel
+        string B = sh.substr(idx+1);                    //Második feltétel
         
-        if(existingName(A)) {
-            thisTable.push_back(A);
-        } else if(other.existingName(B)) {
-            otherTable.push_back(B);
-        } else {
-            throw (invalid_condition());
-        }
+        if(!existingName(A) || !other.existingName(B)) throw (invalid_condition()); //Bármelyiket tartalmazza, HIBA!
+        
+        thisTable.insert(thisTable.begin(), A);         //Első táblára vonatkozó feltételek
+        otherTable.insert(otherTable.begin(), B);       //Második táblára vonatkozó feltételek
+        
+        numberOfCondition++;
+        
+        cout<<A<<" = "<<B<<endl;                        //Csak elenőrzés :)
     }
-    db_table newTable;
     
+    cout<<endl;                                         //Itt is :P
+    
+    
+    
+    map<size_t, string> hashTable;                      //Hashtable a gyorsításahoz
+    hash<string> hashFunc;                              //Beépített hash fv stringekre
+    db_table newTable;                                  //Visszaadandó új db_table
+    
+    ///Új db_table inicializálása
+    for(auto const &it : table) {
+        newTable.add_column(it.first);
+    }
+    
+    for(auto const &it : other.table) {
+        newTable.add_column(it.first);
+    }
+    
+    string str = "";                                    //Segéd string
+    
+    ///Hashtable feltöltése a feltételek jobb oldalával
+    for (size_t i=0; i<other.numberOfRows; i++) {
+        for(size_t j=0; j<numberOfCondition; j++) {      //Egyesített string létrehozása
+            str += other.get(otherTable[j], i);
+            str += '\0';
+        }
+        size_t hash = hashFunc(str);                    //Hash-elés
+        hashTable[hash] = str;                          //Beszúrás
+        str="";                                         //Segéd string törlése
+    }
+    
+    ///Feltételek bal oldalának hash-elése
+    for(size_t i=0; i<numberOfRows; i++) {
+        for(size_t j=0; j<numberOfCondition; j++) {      //Egyesített string létrehozása
+            str += get(thisTable[j], i);
+            str += '\0';
+        }
+        size_t hash = hashFunc(str);                    //Hash-elés
+        if(hashTable.find(hash) != hashTable.end()) addLine(i, other, newTable); //Ha a feltétel igaz, új sor hozzáadása
+        str="";
+    }
     return newTable;
 }
 
@@ -109,12 +157,12 @@ db_table db_table::join(db_table other, string cond) const {
 //Segéd függvények
 bool db_table::invalidIndex(size_t row, string col) const {
     auto search = table.find(col);
-    return (search == table.end() || row > numberOfRows);
+    return (search == table.end() ||  row > numberOfRows);
 }
 
 
 bool db_table::stringIsValid(string &str) const {
-    return find_if(str.begin(), str.end(), [](char c){ return !(isalnum(c));} ) == str.end();
+    return find_if(str.begin(), str.end(), [](char c){ return !(isalnum(c));}) == str.end();
 }
 
 
@@ -127,6 +175,20 @@ bool db_table::existingName(string name) const {
 }
 
 
+void db_table::addLine(size_t row, db_table other, db_table & newT) const {
+    
+    newT.add_row();
+    vector<string> names= column_names();
+    
+    for(unsigned i=0; i<names.size(); i++) {
+        newT.set(names[i], (newT.numberOfRows-1), get(names[i], row));
+    }
+    
+    names = other.column_names();
+    for(unsigned i=0; i<names.size(); i++) {
+        newT.set(other.column_names()[i], (newT.numberOfRows-1), other.get(other.column_names()[i], row));
+    }
+}
 //Unit test
 int main(int argc, char *argv[]) {
     int test_no = 0;
@@ -283,15 +345,15 @@ int main(int argc, char *argv[]) {
         a.set("a2", 3, "fere");
         a.set("a3", 3, "fele");
         b.set("b1", 0, "pata");
-        b.set("b2", 0, "totĂł");
+        b.set("b2", 0, "totó");
         b.set("b3", 0, "kapa");
         b.set("b1", 1, "pata");
-        b.set("b2", 1, "mohĂł");
+        b.set("b2", 1, "mohó");
         b.set("b3", 1, "kapa");
         b.set("b1", 2, "tere");
-        b.set("b2", 2, "jojĂł");
+        b.set("b2", 2, "jojó");
         b.set("b3", 2, "fere");
-        b.set("b1", 3, "hohĂł");
+        b.set("b1", 3, "hohó");
         b.set("b2", 3, "hihi");
         b.set("b3", 3, "hehe");
         
@@ -306,7 +368,7 @@ int main(int argc, char *argv[]) {
             match &= "kapa" == c.get("a2", i);
             match &= "papa" == c.get("a3", i);
             match &= "pata" == c.get("b1", i);
-            match &= "totĂł" == c.get("b2", i);
+            match &= "totó" == c.get("b2", i);
             match &= "kapa" == c.get("b3", i);
             ok1 |= match;
         }
@@ -319,7 +381,7 @@ int main(int argc, char *argv[]) {
             match &= "kapa" == c.get("a2", i);
             match &= "papa" == c.get("a3", i);
             match &= "pata" == c.get("b1", i);
-            match &= "mohĂł" == c.get("b2", i);
+            match &= "mohó" == c.get("b2", i);
             match &= "kapa" == c.get("b3", i);
             ok2 |= match;
         }
@@ -332,7 +394,7 @@ int main(int argc, char *argv[]) {
             match &= "fere" == c.get("a2", i);
             match &= "fele" == c.get("a3", i);
             match &= "tere" == c.get("b1", i);
-            match &= "jojĂł" == c.get("b2", i);
+            match &= "jojó" == c.get("b2", i);
             match &= "fere" == c.get("b3", i);
             ok3 |= match;
         }

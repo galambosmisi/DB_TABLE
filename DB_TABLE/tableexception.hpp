@@ -17,17 +17,20 @@ public:
     const char* what() const throw() { return "Nincs ilyen oszlop!"; }
 };
 
+
 class invalid_value : public exception
 {
 public:
     const char* what() const throw() { return "Tartalmaz '\0' karakter!"; }
 };
 
+
 class invalid_column_name : public exception
 {
 public:
     const char* what() const throw() { return "Már létezik ilyen név, vagy tartalmazza '\0' karaktert, vagy üres"; }
 };
+
 
 class invalid_condition : public exception
 {
