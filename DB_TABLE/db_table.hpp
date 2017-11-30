@@ -30,15 +30,16 @@ public:
     void add_row();                                              //Új (üres) sor hozzáadása
     void set(string col, size_t row, string value);              //Értékadás
     size_t row_count() const;                                    //Visszaadja a sorok számát
-    string get(const string col, const size_t row) const;        //Vissszadja az indexen lévő értéket
+    string get(string col, size_t row) const;        //Vissszadja az indexen lévő értéket
     vector<string> column_names() const;                         //Visszaadja az oszlopok neveit
-    db_table join(db_table other, string cond) const;            //Összefűzi a sorokat a feltétel szerint
+    db_table join(const db_table other, string cond) const;            //Összefűzi a sorokat a feltétel szerint
     
     //Segéd függvények
     bool invalidIndex(size_t, string) const;                     //Megvizsgálja, hogy létezik-e az index
     bool stringIsValid(string&) const;                           //Megvizsgálja, hogy alfanumerikus
     bool existingName(string) const;                             //Megvizsgálja, hogy létezik-e már ilyen nevü oszlop
-    void addLine(size_t, db_table, db_table&) const;
+    void addLine(size_t, size_t, db_table, db_table&) const;     //Hozzáfűz egy egyesített sort az új táblázathoz
+    void print() const;                                          //Kirajzolja a táblázatot (Vági Levitől kértem el)
 };
 
 

@@ -75,7 +75,7 @@ string db_table::get( string col, size_t row) const {
 }
 
 
-db_table db_table::join(db_table other, string cond) const {
+db_table db_table::join(const db_table other, string cond) const {
     if(cond.find("=") == string::npos) throw(invalid_condition());
     
     ///Azonos oszlopnevek ellenőrzése
@@ -114,8 +114,7 @@ db_table db_table::join(db_table other, string cond) const {
     
     
     
-    map<size_t, string> hashTable;                      //Hashtable a gyorsításahoz
-    hash<string> hashFunc;                              //Beépített hash fv stringekre
+    unordered_multimap<string, int> hashTable;                    //Hashtable a gyorsításahoz
     db_table newTable;                                  //Visszaadandó új db_table
     
     ///Új db_table inicializálása
@@ -131,12 +130,12 @@ db_table db_table::join(db_table other, string cond) const {
     
     ///Hashtable feltöltése a feltételek jobb oldalával
     for (size_t i=0; i<other.numberOfRows; i++) {
-        for(size_t j=0; j<numberOfCondition; j++) {      //Egyesített string létrehozása
+        for(size_t j=0; j<numberOfCondition; j++) {     //Egyesített string létrehozása
             str += other.get(otherTable[j], i);
             str += '\0';
         }
-        size_t hash = hashFunc(str);                    //Hash-elés
-        hashTable[hash] = str;                          //Beszúrás
+        pair<string, int> myPair(str, i);
+        hashTable.insert(myPair);                       //Beszúrás
         str="";                                         //Segéd string törlése
     }
     
@@ -146,8 +145,17 @@ db_table db_table::join(db_table other, string cond) const {
             str += get(thisTable[j], i);
             str += '\0';
         }
-        size_t hash = hashFunc(str);                    //Hash-elés
-        if(hashTable.find(hash) != hashTable.end()) addLine(i, other, newTable); //Ha a feltétel igaz, új sor hozzáadása
+        
+        if(hashTable.count(str)>0) {
+            auto range = hashTable.equal_range(str);
+            for (auto it = range.first; it != range.second; ++it) {
+                if(hashTable.find(it->first) != hashTable.end())        //Ha a feltétel igaz, új sor hozzáadása
+                    addLine(i, it->second, other, newTable);
+            }
+        } else {
+            if(hashTable.find(str) != hashTable.end())        //Ha a feltétel igaz, új sor hozzáadása
+                addLine(i, i, other, newTable);
+        }
         str="";
     }
     return newTable;
@@ -175,20 +183,43 @@ bool db_table::existingName(string name) const {
 }
 
 
-void db_table::addLine(size_t row, db_table other, db_table & newT) const {
+void db_table::addLine(size_t row1,size_t row2, db_table other, db_table & newT) const {
     
     newT.add_row();
     vector<string> names= column_names();
     
     for(unsigned i=0; i<names.size(); i++) {
-        newT.set(names[i], (newT.numberOfRows-1), get(names[i], row));
+        newT.set(names[i], (newT.numberOfRows-1), get(names[i], row1));
     }
     
     names = other.column_names();
     for(unsigned i=0; i<names.size(); i++) {
-        newT.set(other.column_names()[i], (newT.numberOfRows-1), other.get(other.column_names()[i], row));
+        newT.set(other.column_names()[i], (newT.numberOfRows-1), other.get(other.column_names()[i], row2));
+    }
+    newT.print();
+    cout<<endl;
+}
+
+
+void db_table::print() const{
+    cout << "|  ";
+    for(auto i : table){
+        cout << i.first << "\t|  ";
+    }
+    cout << endl;
+    for(auto i : table){
+        cout <<"+-------";
+    }
+    cout << "+" << endl;
+    for(size_t i = 0; i < row_count(); i++){
+        cout << "| ";
+        for(auto j : table){
+            cout << j.second[i] << "\t|  ";
+        }
+        cout << endl;
     }
 }
+
 //Unit test
 int main(int argc, char *argv[]) {
     int test_no = 0;
@@ -207,10 +238,12 @@ int main(int argc, char *argv[]) {
     
     TEST("add good columns", 10) {
         db_table t;
-        vector<string> cn {"asd", "AsDf"};
+        std::set<std::string> cn {"asd", "AsDf"};
         t.add_column("asd");
         t.add_column("AsDf");
-        CHECK_EQ(cn, t.column_names());
+        auto vec = t.column_names();
+        std::set<std::string> st(vec.begin(), vec.end());
+        CHECK_EQ(cn, st);
     }
     
     TEST("add bad columns", 5) {
