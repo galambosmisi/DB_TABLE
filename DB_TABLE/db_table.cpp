@@ -14,22 +14,9 @@
 
 using namespace std;
 
-//Ezt az internetről szereztem :))) 
-template<typename T>
-std::ostream& operator<<(std::ostream& s, const std::vector<T>& v) {
-    s.put('[');
-    char comma[3] = {'\0', ' ', '\0'};
-    for (const auto& e : v) {
-        s << comma << e;
-        comma[0] = ',';
-    }
-    return s << ']';
-}
-
-
 //Függvények
 void db_table::add_column(string name) {
-    if(!stringIsValid(name) || name == "" || existingName(name)) throw(invalid_column_name());
+    if(!validString(name) || name == "" || existingName(name)) throw(invalid_column_name());   //Feltéelek vizsgálata
     
     table[name] = vector<string>(numberOfRows, "");
 }
@@ -60,9 +47,9 @@ size_t db_table::row_count() const {
 
 
 void db_table::set(string col, size_t row, string value) {
-    if(invalidIndex(row, col)) throw(invalid_index());
+    if(invalidIndex(row, col)) throw(invalid_index());    //Index vizsgálat
     
-    size_t s = value.find('\0');
+    size_t s = value.find('\0');                          //Rossz karakter vizsgálat
     if(s != string::npos) throw(invalid_value());
     
     table[col][row] = value;
@@ -70,22 +57,22 @@ void db_table::set(string col, size_t row, string value) {
 
 
 string db_table::get( string col, size_t row) const {
-    if(invalidIndex(row, col)) throw(invalid_index());
+    if(invalidIndex(row, col)) throw(invalid_index());     //Index vizsgálat
     return table.at(col)[row];
 }
 
 
 db_table db_table::join(const db_table other, string cond) const {
+    ///Megfelelő feltétel formátum vizsgálása
     if(cond.find("=") == string::npos) throw(invalid_condition());
     
     ///Azonos oszlopnevek ellenőrzése
     for(const auto &it : table) {
-        for(const auto &oit : other.table) {
-            if(it.first == oit.first) throw(invalid_condition());
-        }
+        if(other.table.find(it.first) != other.table.end()) throw invalid_condition();
+
     }
     
-    
+    ///Feltételek rögzítése
     unsigned numberOfCondition=0;
     vector<string> thisTable;
     vector<string> otherTable;
@@ -100,62 +87,58 @@ db_table db_table::join(const db_table other, string cond) const {
         string A = sh.substr(0,idx);                    //Első feltétel
         string B = sh.substr(idx+1);                    //Második feltétel
         
-        if(!existingName(A) || !other.existingName(B)) throw (invalid_condition()); //Bármelyiket tartalmazza, HIBA!
+        if(!existingName(A) || !other.existingName(B)) throw (invalid_condition()); //Valamelyik tábla nem tartalmazza, HIBA!
         
         thisTable.insert(thisTable.begin(), A);         //Első táblára vonatkozó feltételek
         otherTable.insert(otherTable.begin(), B);       //Második táblára vonatkozó feltételek
         
-        numberOfCondition++;
+        numberOfCondition++;                            //Feltételek sszámának növelése
         
         cout<<A<<" = "<<B<<endl;                        //Csak elenőrzés :)
     }
     
-    cout<<endl;                                         //Itt is :P
+    cout<<endl;                                         //Itt is csak ellenőrzés miatt :P
     
     
     
-    unordered_multimap<string, int> hashTable;                    //Hashtable a gyorsításahoz
+    unordered_multimap<string, int> hashTable;          //Hashtable a gyorsításahoz
     db_table newTable;                                  //Visszaadandó új db_table
     
     ///Új db_table inicializálása
     for(auto const &it : table) {
-        newTable.add_column(it.first);
+        newTable.add_column(it.first);                  //Saját tábla oszlopneveinek másolása
     }
     
     for(auto const &it : other.table) {
-        newTable.add_column(it.first);
+        newTable.add_column(it.first);                  //Kapott tábla oszlopneveinek másolása
     }
     
     string str = "";                                    //Segéd string
     
     ///Hashtable feltöltése a feltételek jobb oldalával
-    for (size_t i=0; i<other.numberOfRows; i++) {
-        for(size_t j=0; j<numberOfCondition; j++) {     //Egyesített string létrehozása
+    for (size_t i=0; i<other.numberOfRows; i++) {       //Minden sor "hash"-elése
+        for(size_t j=0; j<numberOfCondition; j++) {     //Egyesített string létrehozása ("hash függvény")
             str += other.get(otherTable[j], i);
             str += '\0';
         }
-        pair<string, int> myPair(str, i);
+        pair<string, int> myPair(str, i);               //Pár létrehozása
         hashTable.insert(myPair);                       //Beszúrás
         str="";                                         //Segéd string törlése
     }
     
     ///Feltételek bal oldalának hash-elése
     for(size_t i=0; i<numberOfRows; i++) {
-        for(size_t j=0; j<numberOfCondition; j++) {      //Egyesített string létrehozása
+        for(size_t j=0; j<numberOfCondition; j++) {      //Egyesített string létrehozása ("hash függvény")
             str += get(thisTable[j], i);
             str += '\0';
         }
         
-        if(hashTable.count(str)>0) {
-            auto range = hashTable.equal_range(str);
-            for (auto it = range.first; it != range.second; ++it) {
-                if(hashTable.find(it->first) != hashTable.end())        //Ha a feltétel igaz, új sor hozzáadása
-                    addLine(i, it->second, other, newTable);
-            }
-        } else {
-            if(hashTable.find(str) != hashTable.end())        //Ha a feltétel igaz, új sor hozzáadása
-                addLine(i, i, other, newTable);
+        auto simularKeys = hashTable.equal_range(str);   //Kulcsütközések lekérése
+        for (auto it = simularKeys.first; it != simularKeys.second; ++it) {
+            if(hashTable.find(it->first) != hashTable.end())        //Ha a feltétel igaz, új sor hozzáadása
+                addLine(i, it->second, other, newTable);
         }
+        
         str="";
     }
     return newTable;
@@ -163,45 +146,42 @@ db_table db_table::join(const db_table other, string cond) const {
 
 
 //Segéd függvények
-bool db_table::invalidIndex(size_t row, string col) const {
+bool db_table::invalidIndex(size_t row, string col) const { //Megvizsgálja, hogy létezik-e az index
     auto search = table.find(col);
     return (search == table.end() ||  row > numberOfRows);
 }
 
 
-bool db_table::stringIsValid(string &str) const {
+bool db_table::validString(string &str) const { //Megvizsgálja, hogy alfanumerikus
     return find_if(str.begin(), str.end(), [](char c){ return !(isalnum(c));}) == str.end();
 }
 
 
-bool db_table::existingName(string name) const {
-    bool contain = false;
-    for(unsigned i=0; i<column_names().size(); i++) {
-        if(column_names()[i] == name) contain = true;
-    }
-    return contain;
+bool db_table::existingName(string name) const { //Megvizsgálja, hogy létezik-e már ilyen nevü oszlop
+    return table.find(name) != table.end();
 }
 
 
-void db_table::addLine(size_t row1,size_t row2, db_table other, db_table & newT) const {
+void db_table::addLine(size_t row1,size_t row2,const db_table &other, db_table &newT) const { //Hozzáfűz egy egyesített sort az új táblázathoz
     
-    newT.add_row();
-    vector<string> names= column_names();
+    newT.add_row();                                                         //Új sor létrehozása
+    vector<string> names= column_names();                                   //Saját tábla oszlopneveinek lekérése
     
     for(unsigned i=0; i<names.size(); i++) {
-        newT.set(names[i], (newT.numberOfRows-1), get(names[i], row1));
+        newT.set(names[i], (newT.numberOfRows-1), get(names[i], row1));     //Értékatáds 1.
     }
     
-    names = other.column_names();
+    names = other.column_names();                                           //Másik tábla oszlopneveinek lekérése
+    
     for(unsigned i=0; i<names.size(); i++) {
-        newT.set(other.column_names()[i], (newT.numberOfRows-1), other.get(other.column_names()[i], row2));
+        newT.set(other.column_names()[i], (newT.numberOfRows-1), other.get(other.column_names()[i], row2)); //Értékadás 2.
     }
-    newT.print();
+    newT.print();                                                           //Csak ellenőrzés miatt
     cout<<endl;
 }
 
 
-void db_table::print() const{
+void db_table::print() const{ //Kirajzolja a táblázatot (Vági Levitől kértem el)
     cout << "|  ";
     for(auto i : table){
         cout << i.first << "\t|  ";
